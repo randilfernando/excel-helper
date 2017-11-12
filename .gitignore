@@ -1,3 +1,5 @@
 .idea/
 excell-helper.iml
 target/
+.DS_Store
+sample-data/
