@@ -15,32 +15,32 @@ import java.util.Iterator;
 
 public class ExcelWorkBookReader {
 
-    public ExcelWorkBook readExcelWorkBook(String filePath, boolean useBasePath, int keyColumnIndex){
+    public ExcelWorkBook readExcelWorkBook(String filePath, boolean useBasePath, int[] keyColumns, int groupingColumn){
         try(FileInputStream fileInputStream = FileHelper.getInputStream(filePath, useBasePath)) {
             XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
-            return this.extractExcelWorkBook(workbook, keyColumnIndex);
+            return this.extractExcelWorkBook(workbook, keyColumns, groupingColumn);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private ExcelWorkBook extractExcelWorkBook(XSSFWorkbook workbook, int keyColumnIndex){
+    private ExcelWorkBook extractExcelWorkBook(XSSFWorkbook workbook, int[] keyColumns, int groupingColumn){
         ExcelWorkBook excelWorkBook = new ExcelWorkBook();
 
         int numberOfSheets = workbook.getNumberOfSheets();
         for (int i = 0; i < numberOfSheets; i++){
             XSSFSheet sheet = workbook.getSheetAt(i);
-            ExcelWorkSheet excelWorkSheet = this.extractExcelWorkSheet(sheet, keyColumnIndex);
+            ExcelWorkSheet excelWorkSheet = this.extractExcelWorkSheet(sheet, keyColumns, groupingColumn);
             excelWorkBook.addWorkSheet(excelWorkSheet);
         }
 
         return excelWorkBook;
     }
 
-    private ExcelWorkSheet extractExcelWorkSheet(XSSFSheet sheet, int keyColumnIndex){
+    private ExcelWorkSheet extractExcelWorkSheet(XSSFSheet sheet, int[] keyColumns, int groupingColumn){
         String sheetName = sheet.getSheetName();
-        ExcelWorkSheet excelWorkSheet = new ExcelWorkSheet(sheetName);
+        ExcelWorkSheet excelWorkSheet = new ExcelWorkSheet(sheetName, keyColumns, groupingColumn);
 
         Iterator<Row> rowIterator = sheet.rowIterator();
 
@@ -54,7 +54,7 @@ public class ExcelWorkBookReader {
             Row row = rowIterator.next();
             Object[] extractedRow = this.extractExcelRow(row);
             if (extractedRow.length > 0){
-                excelWorkSheet.insertRow(extractedRow[keyColumnIndex].toString(), extractedRow);
+                excelWorkSheet.insertRow(extractedRow, true);
             }
         }
 
@@ -80,5 +80,4 @@ public class ExcelWorkBookReader {
 
         return objectArray.toArray();
     }
-
 }

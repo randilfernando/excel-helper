@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public final class FileHelper {
-    private static final String basePath = "/Users/randilfernando/Documents/";
+    private static final String basePath = "";
 
     private FileHelper(){}
 
@@ -17,5 +17,9 @@ public final class FileHelper {
     public static FileOutputStream getOutPutStream(String filePath, boolean useBasePath) throws FileNotFoundException {
         if (useBasePath) filePath = basePath + filePath;
         return new FileOutputStream(filePath);
+    }
+
+    public static String getBasePath(){
+        return basePath;
     }
 }
