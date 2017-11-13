@@ -1,14 +1,9 @@
 package com.alternate.officetools.application;
 
-import com.alternate.officetools.helper.FileHelper;
+import com.alternate.officetools.helper.ExcelHelper;
 import com.alternate.officetools.model.ExcelWorkBook;
-import com.alternate.officetools.model.ExcelWorkSheet;
 import com.alternate.officetools.service.ExcelHelperEngine;
-import com.alternate.officetools.service.ExcelWorkBookReader;
-import com.alternate.officetools.service.ExcelWorkBookWriter;
-import com.alternate.officetools.service.ExcelWorkSheetMerger;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ExcelHelperConsole implements IExcelHelper {
@@ -25,8 +20,74 @@ public class ExcelHelperConsole implements IExcelHelper {
     private void showMainMenu(){
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Excel sheet merger");
+        System.out.println("Excel Helper");
         System.out.println("==========================================================================================");
+
+        int choice = 0;
+
+        while (choice != 4){
+            this.printMainMenu();
+
+            System.out.print("Enter your choice: ");
+            choice = Integer.parseInt(scanner.nextLine());
+
+            switch (choice){
+                case 1: mergeWorkbookSheets(false); break;
+                case 2: mergeWorkbookSheets(true); break;
+                case 3: generateWorkBookReport(); break;
+                default:
+                    System.out.println("Invalid input");
+            }
+        }
+
+        System.out.println("==========================================================================================");
+        System.out.println("End");
+    }
+
+    private void printMainMenu(){
+        System.out.println("==========================================================================================");
+        System.out.println("(1) Merge excel workbooks (Duplicates in seperate sheet)");
+        System.out.println("(2) Merge excel workbooks (Duplicates in same sheet)");
+        System.out.println("(3) Generate workbook report");
+        System.out.println("(4) Exit");
+        System.out.println("==========================================================================================");
+    }
+
+    private void generateWorkBookReport(){
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter input file name: ");
+        String inputFile1 = scanner.nextLine();
+
+        System.out.print("Enter key column indexes: ");
+        String[] keyColumns1 = scanner.nextLine().split(",");
+
+        System.out.print("Enter grouping column indexes: ");
+        String[] groupingColumns1 = scanner.nextLine().split(",");
+
+        System.out.print("Enter result file name: ");
+        String outputFile = scanner.nextLine();
+
+        int[] keyColumnsReal1 = ExcelHelper.conventIntoIntegerArray(keyColumns1);
+        int[] groupingColumnsReal1 = ExcelHelper.conventIntoIntegerArray(groupingColumns1);
+
+        System.out.println("Reading " + inputFile1);
+        ExcelWorkBook excelWorkBook1 = this.excelHelperEngine.readExcelWorkBook(inputFile1, true, keyColumnsReal1, groupingColumnsReal1);
+        System.out.println("Done");
+
+        System.out.println("Generating report");
+        ExcelWorkBook resultExcelWorkBook = this.excelHelperEngine.generateWorkBookReport(excelWorkBook1);
+        System.out.println("Done");
+
+        System.out.println("Writing " + outputFile);
+        this.excelHelperEngine.writeExcelWorkBook(outputFile, true, resultExcelWorkBook);
+        System.out.println("Done");
+
+        System.out.println("Success");
+    }
+
+    private void mergeWorkbookSheets(boolean sameSheet){
+        Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter input file1 name: ");
         String inputFile1 = scanner.nextLine();
@@ -34,8 +95,8 @@ public class ExcelHelperConsole implements IExcelHelper {
         System.out.print("Enter key column indexes: ");
         String[] keyColumns1 = scanner.nextLine().split(",");
 
-        System.out.print("Enter grouping column index: ");
-        String groupingColumn1 = scanner.nextLine();
+        System.out.print("Enter grouping column indexes: ");
+        String[] groupingColumns1 = scanner.nextLine().split(",");
 
         System.out.print("Enter input file2 name: ");
         String inputFile2 = scanner.nextLine();
@@ -44,40 +105,41 @@ public class ExcelHelperConsole implements IExcelHelper {
         String[] keyColumns2 = scanner.nextLine().split(",");
 
         System.out.print("Enter grouping column index: ");
-        String groupingColumn2 = scanner.nextLine();
+        String[] groupingColumns2 = scanner.nextLine().split(",");
 
         System.out.print("Enter result file name: ");
         String outputFile = scanner.nextLine();
 
-        mergeWorkbookSheets(inputFile1, inputFile2, outputFile, true, keyColumns1, keyColumns2, groupingColumn1, groupingColumn2);
+        int[] keyColumnsReal1 = ExcelHelper.conventIntoIntegerArray(keyColumns1);
+        int[] groupingColumnsReal1 = ExcelHelper.conventIntoIntegerArray(groupingColumns1);
 
-        System.out.println("==========================================================================================");
-        System.out.println("End");
-    }
+        int[] keyColumnsReal2 = ExcelHelper.conventIntoIntegerArray(keyColumns2);
+        int[] groupingColumnsReal2 = ExcelHelper.conventIntoIntegerArray(groupingColumns2);
 
-    private void mergeWorkbookSheets(String inputFile1, String inputFile2, String outputFile, boolean useBasePath,
-                                     String[] keyColumns1, String[] keyColumns2, String groupingColumn1, String groupingColumn2){
-        int[] keyColumnsReal1 = new int[keyColumns1.length];
-        int groupingColumnReal1 = Integer.parseInt(groupingColumn1);
+        System.out.println("Reading " + inputFile1);
+        ExcelWorkBook excelWorkBook1 = this.excelHelperEngine.readExcelWorkBook(inputFile1, true, keyColumnsReal1, groupingColumnsReal1);
+        System.out.println("Done");
 
-        int[] keyColumnsReal2 = new int[keyColumns2.length];
-        int groupingColumnReal2 = Integer.parseInt(groupingColumn2);
+        System.out.println("Reading " + inputFile2);
+        ExcelWorkBook excelWorkBook2 = this.excelHelperEngine.readExcelWorkBook(inputFile2, true, keyColumnsReal2, groupingColumnsReal2);
+        System.out.println("Done");
 
-        for (int i = 0; i < keyColumns1.length; i++){
-            keyColumnsReal1[i] = Integer.parseInt(keyColumns1[i]);
+        System.out.println("Merging " + inputFile1 + " + " + inputFile2);
+
+        ExcelWorkBook resultExcelWorkBook;
+
+        if (sameSheet){
+            resultExcelWorkBook = this.excelHelperEngine.joinWorkBooksUSingKeySingleSheet(excelWorkBook1, excelWorkBook2);
+        }else{
+            resultExcelWorkBook = this.excelHelperEngine.joinWorkBooksUsingKey(excelWorkBook1, excelWorkBook2);
         }
 
-        for (int i = 0; i < keyColumns2.length; i++){
-            keyColumnsReal2[i] = Integer.parseInt(keyColumns2[i]);
-        }
+        System.out.println("Done");
 
-        ExcelWorkBook excelWorkBook1 = this.excelHelperEngine.readExcelWorkBook(inputFile1, useBasePath, keyColumnsReal1, groupingColumnReal1);
-        ExcelWorkBook excelWorkBook2 = this.excelHelperEngine.readExcelWorkBook(inputFile2, useBasePath, keyColumnsReal2, groupingColumnReal2);
-
-        ExcelWorkBook resultExcelWorkBook = this.excelHelperEngine.joinWorkBooksUsingKey(excelWorkBook1, excelWorkBook2);
-
+        System.out.println("Writing " + outputFile);
         this.excelHelperEngine.writeExcelWorkBook(outputFile, true, resultExcelWorkBook);
+        System.out.println("Done");
 
-        System.out.println("");
+        System.out.println("Success");
     }
 }

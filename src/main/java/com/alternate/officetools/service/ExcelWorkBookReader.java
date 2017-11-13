@@ -15,32 +15,32 @@ import java.util.Iterator;
 
 public class ExcelWorkBookReader {
 
-    public ExcelWorkBook readExcelWorkBook(String filePath, boolean useBasePath, int[] keyColumns, int groupingColumn){
+    public ExcelWorkBook readExcelWorkBook(String filePath, boolean useBasePath, int[] keyColumns, int[] groupingColumns){
         try(FileInputStream fileInputStream = FileHelper.getInputStream(filePath, useBasePath)) {
             XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
-            return this.extractExcelWorkBook(workbook, keyColumns, groupingColumn);
+            return this.extractExcelWorkBook(workbook, keyColumns, groupingColumns);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private ExcelWorkBook extractExcelWorkBook(XSSFWorkbook workbook, int[] keyColumns, int groupingColumn){
+    private ExcelWorkBook extractExcelWorkBook(XSSFWorkbook workbook, int[] keyColumns, int[] groupingColumns){
         ExcelWorkBook excelWorkBook = new ExcelWorkBook();
 
         int numberOfSheets = workbook.getNumberOfSheets();
         for (int i = 0; i < numberOfSheets; i++){
             XSSFSheet sheet = workbook.getSheetAt(i);
-            ExcelWorkSheet excelWorkSheet = this.extractExcelWorkSheet(sheet, keyColumns, groupingColumn);
+            ExcelWorkSheet excelWorkSheet = this.extractExcelWorkSheet(sheet, keyColumns, groupingColumns);
             excelWorkBook.addWorkSheet(excelWorkSheet);
         }
 
         return excelWorkBook;
     }
 
-    private ExcelWorkSheet extractExcelWorkSheet(XSSFSheet sheet, int[] keyColumns, int groupingColumn){
+    private ExcelWorkSheet extractExcelWorkSheet(XSSFSheet sheet, int[] keyColumns, int[] groupingColumns){
         String sheetName = sheet.getSheetName();
-        ExcelWorkSheet excelWorkSheet = new ExcelWorkSheet(sheetName, keyColumns, groupingColumn);
+        ExcelWorkSheet excelWorkSheet = new ExcelWorkSheet(sheetName, keyColumns, groupingColumns);
 
         Iterator<Row> rowIterator = sheet.rowIterator();
 
@@ -75,6 +75,7 @@ public class ExcelWorkBookReader {
                 case STRING:
                     objectArray.add(cell.getStringCellValue());
                     break;
+                default: objectArray.add("");
             }
         }
 

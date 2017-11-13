@@ -11,13 +11,13 @@ public class ExcelWorkSheet {
     private Map<String, Object[]> duplicateEntries;
     private Map<String, Integer> groups;
     private int[] keyColumns;
-    private int groupingColumn;
+    private int[] groupingColumns;
 
-    public ExcelWorkSheet(String name, int[] keyColumns, int groupingColumn) {
+    public ExcelWorkSheet(String name, int[] keyColumns, int[] groupingColumns) {
         this();
         this.setName(name);
         this.keyColumns = keyColumns;
-        this.groupingColumn = groupingColumn;
+        this.groupingColumns = groupingColumns;
     }
 
     public ExcelWorkSheet() {
@@ -25,7 +25,7 @@ public class ExcelWorkSheet {
         this.duplicateEntries = new LinkedHashMap<>();
         this.groups = new TreeMap<>();
         this.keyColumns = new int[]{0};
-        this.groupingColumn = 0;
+        this.groupingColumns = new int[]{0};
     }
 
     public void insertRow(Object[] row, boolean seperateDuplicates) {
@@ -38,10 +38,12 @@ public class ExcelWorkSheet {
             Object[] rows = this.duplicateEntries.get(key);
             rows = ArrayUtils.add(rows, row);
             this.duplicateEntries.put(key, rows);
+            this.insertIntoGroup(row);
         } else if (this.isInData(key)) {
             Object[] previousRow = this.data.get(key);
             this.data.remove(key);
             this.duplicateEntries.put(key, new Object[]{previousRow, row});
+            this.insertIntoGroup(row);
         } else {
             this.data.put(key, row);
             this.insertIntoGroup(row);
@@ -57,12 +59,16 @@ public class ExcelWorkSheet {
     }
 
     private void insertIntoGroup(Object[] row) {
-        String key = row[this.groupingColumn].toString();
+        StringBuilder key = new StringBuilder();
 
-        if (this.groups.containsKey(key)) {
-            this.groups.put(key, this.groups.get(key) + 1);
+        for (int groupingColumn: this.groupingColumns){
+            key.append(row[groupingColumn].toString()).append("_");
+        }
+
+        if (this.groups.containsKey(key.toString())) {
+            this.groups.put(key.toString(), this.groups.get(key.toString()) + 1);
         } else {
-            this.groups.put(key, 1);
+            this.groups.put(key.toString(), 1);
         }
     }
 
@@ -96,12 +102,16 @@ public class ExcelWorkSheet {
         return duplicateEntries;
     }
 
+    public Map<String, Integer> getGroups() {
+        return groups;
+    }
+
     public int[] getKeyColumns() {
         return keyColumns;
     }
 
-    public int getGroupingColumn() {
-        return groupingColumn;
+    public int[] getGroupingColumn() {
+        return groupingColumns;
     }
 
     public void setName(String name) {
@@ -116,8 +126,8 @@ public class ExcelWorkSheet {
         this.keyColumns = keyColumns;
     }
 
-    public void setGroupingColumn(int groupingColumn) {
-        this.groupingColumn = groupingColumn;
+    public void setGroupingColumn(int[] groupingColumns) {
+        this.groupingColumns = groupingColumns;
     }
 
     //</editor-fold>

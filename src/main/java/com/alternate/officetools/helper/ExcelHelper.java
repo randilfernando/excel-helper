@@ -15,4 +15,24 @@ public final class ExcelHelper {
         return baseName + "_" + number;
     }
 
+    public static int[] conventIntoIntegerArray(String[] arrayIn){
+        int[] arrayOut = new int[arrayIn.length];
+
+        for (int i = 0; i < arrayIn.length; i++){
+            arrayOut[i] = Integer.parseInt(arrayIn[i]);
+        }
+
+        return arrayOut;
+    }
+
+    public static String generateReportCellName(String prefix, Object[] row, int[] columns){
+        StringBuilder name = new StringBuilder(prefix);
+
+        for (int i: columns){
+            name.append("_").append(row[i]);
+        }
+
+        return name.toString();
+    }
+
 }
