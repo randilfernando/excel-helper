@@ -18,6 +18,7 @@ public class ExcelReportGenerator {
 
     private ExcelWorkSheet generateWorkSheetReport(ExcelWorkSheet workSheet){
         ExcelWorkSheet resultWorkSheet = new ExcelWorkSheet();
+        resultWorkSheet.setColumnNames(new Object[]{workSheet.getName()});
 
         String groupsColumnName = ExcelHelper.generateReportCellName("Groups", workSheet.getColumnNames(), workSheet.getGroupingColumn());
         String keyColumnName = ExcelHelper.generateReportCellName("Keys", workSheet.getColumnNames(), workSheet.getKeyColumns());
@@ -38,8 +39,6 @@ public class ExcelReportGenerator {
         resultWorkSheet.insertRow(new Object[]{groupsColumnName, groups}, false);
         resultWorkSheet.insertRow(new Object[]{keyColumnName + "(Without duplicates)", keysWithoutDuplicates}, false);
         resultWorkSheet.insertRow(new Object[]{keyColumnName + "(With duplicates)", keysWithDuplicates}, false);
-
-        resultWorkSheet.insertRow(new Object[0], false);
 
         resultWorkSheet.insertRow(new Object[]{"Plain entries", plainEntries}, false);
         resultWorkSheet.insertRow(new Object[]{"Duplicate entries", duplicateEntries}, false);
