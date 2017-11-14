@@ -36,10 +36,18 @@ public class ExcelWorkSheetMerger {
 
         for (String key : workSheet1.getData().keySet()) {
             if (workSheet2.isInDuplicateEntries(key)){
-                resultWorkSheet.insertRow(workSheet1.getData().get(key), false);
-                for (Object row: workSheet2.getDuplicateEntries().get(key)){
-                    Object[] resultRow = ArrayUtils.addAll(new Object[workSheet1.getColumnNames().length], (Object[]) row);
-                    resultWorkSheet.insertRow(resultRow, false);
+                try{
+                    Object[] firstRow = ArrayUtils.addAll(workSheet1.getData().get(key), (Object[]) workSheet2.getDuplicateEntries().get(key)[0]);
+                    resultWorkSheet.insertRow(firstRow, false);
+
+                    int length = workSheet2.getDuplicateEntries().get(key).length;
+
+                    for (int i = 1; i < length; i++){
+                        Object[] resultRow = ArrayUtils.addAll(new Object[workSheet1.getColumnNames().length], (Object[]) workSheet2.getDuplicateEntries().get(key)[i]);
+                        resultWorkSheet.insertRow(resultRow, false);
+                    }
+                }catch (Exception e){
+                    System.out.println();
                 }
             }
 

@@ -29,24 +29,27 @@ public class ExcelWorkSheet {
     }
 
     public void insertRow(Object[] row, boolean seperateDuplicates) {
-        String key = generateKey(row, this.keyColumns);
-
-        if (!seperateDuplicates) {
-            key = "entry_" + (this.data.size() + 1);
-            this.data.put(key, row);
-        } else if (this.isInDuplicateEntries(key)) {
-            Object[] rows = this.duplicateEntries.get(key);
-            rows = ArrayUtils.add(rows, row);
-            this.duplicateEntries.put(key, rows);
-            this.insertIntoGroup(row);
-        } else if (this.isInData(key)) {
-            Object[] previousRow = this.data.get(key);
-            this.data.remove(key);
-            this.duplicateEntries.put(key, new Object[]{previousRow, row});
-            this.insertIntoGroup(row);
-        } else {
-            this.data.put(key, row);
-            this.insertIntoGroup(row);
+        try{
+            String key = generateKey(row, this.keyColumns);
+            if (!seperateDuplicates) {
+                key = "entry_" + (this.data.size() + 1);
+                this.data.put(key, row);
+            } else if (this.isInDuplicateEntries(key)) {
+                Object[] rows = this.duplicateEntries.get(key);
+                rows = ArrayUtils.add(rows, row);
+                this.duplicateEntries.put(key, rows);
+                this.insertIntoGroup(row);
+            } else if (this.isInData(key)) {
+                Object[] previousRow = this.data.get(key);
+                this.data.remove(key);
+                this.duplicateEntries.put(key, new Object[]{previousRow, row});
+                this.insertIntoGroup(row);
+            } else {
+                this.data.put(key, row);
+                this.insertIntoGroup(row);
+            }
+        }catch (Exception e){
+            System.out.println("Row cant read");
         }
     }
 
@@ -76,8 +79,7 @@ public class ExcelWorkSheet {
         StringBuilder key = new StringBuilder();
 
         for (int keyColumn : keyColumns) {
-            key.append(row[keyColumn]);
-            key.append("_");
+            key.append(row[keyColumn]).append("_");
         }
 
         return key.toString();
