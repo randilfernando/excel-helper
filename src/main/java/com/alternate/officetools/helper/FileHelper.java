@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public final class FileHelper {
-    private static final String basePath = "/Users/randilfernando/Documents/Projects/Github/excell-helper/sample-data/";
+    private static final String basePath = "";
 
     private FileHelper(){}
 
